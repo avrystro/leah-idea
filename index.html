@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Move Your Mental Health - Find Your Movement</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { dark: '#0a1628', DEFAULT: '#1a2744', light: '#243352' },
+            cyan: { DEFAULT: '#5bc4d4', light: '#7dd8e6', pale: '#b0e8f0' },
+            blue: { mid: '#2d5f9a', soft: '#3a7bc8' },
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0a1628 0%, #1a2744 40%, #1e3a5f 70%, #1a2744 100%);
+      min-height: 100vh;
+    }
+    .starfield {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.15) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.1) 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.12) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 80%, rgba(255,255,255,0.08) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,0.15) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 15% 85%, rgba(255,255,255,0.1) 0%, transparent 100%),
+        radial-gradient(1px 1px at 45% 45%, rgba(255,255,255,0.08) 0%, transparent 100%),
+        radial-gradient(1px 1px at 80% 15%, rgba(255,255,255,0.12) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 60% 70%, rgba(255,255,255,0.06) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.1) 0%, transparent 100%);
+    }
+    .screen { display: none; }
+    .screen.active { display: flex; }
+    .option-card {
+      transition: all 0.2s ease;
+    }
+    .option-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(91, 196, 212, 0.15);
+      border-color: #5bc4d4;
+    }
+    .option-card:active {
+      transform: translateY(0);
+    }
+    .fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .result-card {
+      animation: fadeIn 0.5s ease-out both;
+    }
+    .result-card:nth-child(2) { animation-delay: 0.15s; }
+    .result-card:nth-child(3) { animation-delay: 0.3s; }
+    .glow-border {
+      box-shadow: 0 0 30px rgba(91, 196, 212, 0.1), 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .progress-dot {
+      transition: all 0.3s ease;
+    }
+  </style>
+</head>
+<body class="text-white font-sans">
+  <div class="starfield"></div>
+
+  <div class="relative z-10 min-h-screen flex flex-col">
+
+    <!-- WELCOME SCREEN -->
+    <div id="welcome" class="screen active flex-col items-center justify-center min-h-screen px-6 text-center">
+      <div class="max-w-lg mx-auto fade-in">
+        <div class="mb-8">
+          <div class="inline-flex items-center gap-2 text-cyan text-sm tracking-widest uppercase mb-6">
+            John W. Brick Mental Health Foundation
+          </div>
+          <h1 class="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+            Move Your<br>
+            <span class="text-cyan">Mental Health</span>
+          </h1>
+          <p class="text-slate-300 text-lg md:text-xl leading-relaxed max-w-md mx-auto">
+            Discover the best movement practice for your wellbeing - backed by 1,600+ scientific studies.
+          </p>
+        </div>
+        <p class="text-slate-400 text-sm mb-8">Takes about 2 minutes</p>
+        <button onclick="startQuiz()" class="bg-cyan hover:bg-cyan-light text-navy-dark font-semibold text-lg px-10 py-4 rounded-xl transition-all hover:scale-[1.02] active:scale-100 shadow-lg">
+          Find Your Movement
+        </button>
+      </div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="quiz" class="screen flex-col items-center justify-center min-h-screen px-6">
+      <div class="max-w-lg mx-auto w-full fade-in">
+        <!-- Progress -->
+        <div class="flex items-center justify-center gap-3 mb-10">
+          <div id="dot-0" class="progress-dot w-2.5 h-2.5 rounded-full bg-slate-600"></div>
+          <div id="dot-1" class="progress-dot w-2.5 h-2.5 rounded-full bg-slate-600"></div>
+          <div id="dot-2" class="progress-dot w-2.5 h-2.5 rounded-full bg-slate-600"></div>
+          <div id="dot-3" class="progress-dot w-2.5 h-2.5 rounded-full bg-slate-600"></div>
+          <div id="dot-4" class="progress-dot w-2.5 h-2.5 rounded-full bg-slate-600"></div>
+        </div>
+
+        <!-- Question -->
+        <h2 id="question-text" class="text-2xl md:text-3xl font-bold text-center mb-8 leading-snug"></h2>
+
+        <!-- Options -->
+        <div id="options-container" class="flex flex-col gap-3"></div>
+
+        <!-- Back button -->
+        <button id="back-btn" onclick="goBack()" class="mt-6 text-slate-400 hover:text-white text-sm flex items-center gap-2 mx-auto transition-colors" style="display:none">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+      </div>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div id="results" class="screen flex-col items-center min-h-screen px-6 py-12">
+      <div class="max-w-2xl mx-auto w-full">
+        <div class="text-center mb-10 fade-in">
+          <p class="text-cyan text-sm tracking-widest uppercase mb-3">Your personalized plan</p>
+          <h2 class="text-3xl md:text-4xl font-bold mb-3">Your Weekly Movement</h2>
+          <p class="text-slate-300 text-base max-w-md mx-auto">Based on the science, here are the best movement practices for you. Start with once a week and build from there.</p>
+        </div>
+
+        <div id="results-container" class="flex flex-col gap-5 mb-10"></div>
+
+        <div class="fade-in bg-navy-light/50 border border-slate-700/50 rounded-xl p-6 mb-8 text-center" style="animation-delay: 0.5s">
+          <p class="text-cyan font-semibold mb-2">The science says: start where you are</p>
+          <p class="text-slate-300 text-sm leading-relaxed">Research shows optimal mental health benefits come from 3-5 sessions of 30-45 minutes per week. But <strong class="text-white">even once a week makes a real difference</strong>. Let this become your foundation and grow from here.</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 justify-center mb-12 fade-in" style="animation-delay: 0.6s">
+          <button onclick="retakeQuiz()" class="bg-cyan hover:bg-cyan-light text-navy-dark font-semibold px-8 py-3 rounded-xl transition-all hover:scale-[1.02]">
+            Retake Quiz
+          </button>
+        </div>
+
+        <!-- Disclaimer & Attribution -->
+        <div class="border-t border-slate-700/50 pt-8 text-center fade-in" style="animation-delay: 0.7s">
+          <p class="text-slate-400 text-xs leading-relaxed mb-4">
+            This tool provides general wellness information based on the Move Your Mental Health report, a review of over 1,600 scientific studies. It is not a substitute for professional medical or mental health advice, diagnosis, or treatment. Always seek the advice of a qualified health provider with any questions you may have.
+          </p>
+          <p class="text-slate-400 text-xs leading-relaxed mb-4">
+            <strong class="text-slate-300">If you are in crisis or experiencing thoughts of self-harm,</strong> please contact the <strong class="text-slate-300">988 Suicide & Crisis Lifeline</strong> by calling or texting <strong class="text-white">988</strong>.
+          </p>
+          <p class="text-slate-500 text-xs leading-relaxed">
+            Based on the <a href="https://www.johnwbrickfoundation.org/move-your-mental-health-report/" class="text-cyan/70 hover:text-cyan underline" target="_blank" rel="noopener">Move Your Mental Health Report</a> (2022) by the John W. Brick Mental Health Foundation - a review of over 1,600 peer-reviewed studies on exercise and mental health.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+// =====================================================
+// DATA
+// =====================================================
+
+const questions = [
+  {
+    text: "What's most affecting your wellbeing right now?",
+    options: [
+      { label: "I've been feeling down or sad", value: "depression" },
+      { label: "I've been feeling worried or anxious", value: "anxiety" },
+      { label: "I've been feeling stressed or overwhelmed", value: "stress" },
+      { label: "I've been feeling low energy or unmotivated", value: "low_energy" },
+      { label: "I just want to feel better overall", value: "general_wellbeing" },
+    ]
+  },
+  {
+    text: "How active are you right now?",
+    options: [
+      { label: "Not very active - mostly sitting", value: "sedentary" },
+      { label: "A little active - some walking or light movement", value: "light" },
+      { label: "Fairly active - I move regularly but want more", value: "moderate" },
+    ]
+  },
+  {
+    text: "What kind of movement appeals to you?",
+    options: [
+      { label: "Something calm and mindful", value: "mindful" },
+      { label: "Something more active and energetic", value: "energetic" },
+      { label: "A mix of both", value: "mixed" },
+    ]
+  },
+  {
+    text: "Where would you prefer to move?",
+    options: [
+      { label: "At home - no equipment needed", value: "home" },
+      { label: "Outdoors", value: "outdoor" },
+      { label: "A gym or studio", value: "gym" },
+      { label: "No preference", value: "any" },
+    ]
+  },
+  {
+    text: "How much time could you set aside?",
+    options: [
+      { label: "15-20 minutes", value: "short" },
+      { label: "About 30 minutes", value: "medium" },
+      { label: "45 minutes or more", value: "long" },
+    ]
+  },
+];
+
+const exercises = [
+  {
+    id: "yoga",
+    name: "Yoga",
+    preference: "mindful",
+    settings: ["home", "gym"],
+    scores: { depression: 10, anxiety: 10, stress: 7, low_energy: 7, general_wellbeing: 8 },
+    evidence: {
+      depression: "89% of 114 studies found yoga significantly improves depression symptoms.",
+      anxiety: "93% of studies found yoga significantly reduces anxiety.",
+      stress: "Studies show yoga effectively reduces stress through deep breathing and mindful movement.",
+      low_energy: "Yoga increases brain-derived neurotrophic factor (BDNF) and balances cortisol, helping restore energy and motivation.",
+      general_wellbeing: "Yoga is one of the most studied and effective movement practices for overall mental wellbeing.",
+    },
+    why: {
+      depression: "Yoga increases GABA - a neurotransmitter directly linked to improved mood - while reducing cortisol, your body's stress hormone.",
+      anxiety: "The combination of controlled breathing and gentle movement activates your body's relaxation response, calming your nervous system.",
+      stress: "Deep breathing and mindful poses help down-regulate your stress response and bring you back to calm.",
+      low_energy: "Gentle yet purposeful movement helps restore the balance between rest and energy in your body and mind.",
+      general_wellbeing: "The mind-body connection in yoga builds both physical strength and emotional resilience over time.",
+    },
+    starters: {
+      sedentary: { short: "Follow a 15-minute beginner yoga video at home. Focus on breathing and gentle poses - no flexibility required.", medium: "Try a 30-minute beginner yoga flow. Start slow and rest whenever you need to.", long: "Follow a 45-minute gentle yoga class online. Let yourself ease into each pose." },
+      light: { short: "Do a 20-minute yoga flow focusing on standing poses and breathing.", medium: "Follow a 30-minute yoga practice mixing gentle and moderate poses.", long: "Try a 45-minute yoga session that includes some strengthening poses." },
+      moderate: { short: "Do a 20-minute power or vinyasa yoga flow to challenge yourself.", medium: "Try a 30-minute vinyasa or ashtanga-style practice.", long: "Follow a 45-minute intermediate yoga class with both flow and hold sequences." },
+    }
+  },
+  {
+    id: "tai_chi",
+    name: "Tai Chi & Qigong",
+    preference: "mindful",
+    settings: ["home", "outdoor", "gym"],
+    scores: { depression: 10, anxiety: 10, stress: 10, low_energy: 7, general_wellbeing: 8 },
+    evidence: {
+      depression: "97% of studies found Tai Chi and Qigong significantly improve depression.",
+      anxiety: "100% of studies on Tai Chi and anxiety showed significant positive results.",
+      stress: "All studies found Tai Chi and Qigong effectively reduce stress.",
+      low_energy: "Tai Chi cultivates energy flow through slow, intentional movement and deep breathing.",
+      general_wellbeing: "51 out of 53 studies showed Tai Chi and Qigong improve mental health outcomes.",
+    },
+    why: {
+      depression: "Slow, flowing movements with rhythmic breathing help rebalance your nervous system and elevate mood naturally.",
+      anxiety: "The meditative quality of Tai Chi calms racing thoughts while the gentle movement releases physical tension.",
+      stress: "Tai Chi directly activates your body's relaxation response through coordinated breath and movement.",
+      low_energy: "These practices are designed to cultivate and circulate energy - the movements are gentle enough to do when you're depleted.",
+      general_wellbeing: "Tai Chi balances mind, body, and spirit through movement that's been practiced for centuries.",
+    },
+    starters: {
+      sedentary: { short: "Follow a 15-minute beginner Qigong video. Simple, slow movements you can do standing in place.", medium: "Try a 30-minute beginner Tai Chi or Qigong class online. The movements are gentle and forgiving.", long: "Follow a 45-minute Qigong for beginners video. No rushing - the slowness is the point." },
+      light: { short: "Do 20 minutes of Qigong focusing on breathing and gentle arm movements.", medium: "Follow a 30-minute Tai Chi fundamentals video.", long: "Try a 45-minute Tai Chi practice that introduces basic forms." },
+      moderate: { short: "Practice 20 minutes of Tai Chi forms you can follow along with.", medium: "Do a 30-minute Tai Chi session working through a full short form.", long: "Follow a 45-minute Tai Chi class incorporating multiple forms and deeper stances." },
+    }
+  },
+  {
+    id: "walking",
+    name: "Walking",
+    preference: "mixed",
+    settings: ["outdoor", "home"],
+    scores: { depression: 10, anxiety: 10, stress: 10, low_energy: 8, general_wellbeing: 10 },
+    evidence: {
+      depression: "87% of 39 studies found walking significantly improves depression symptoms.",
+      anxiety: "Every study on walking and anxiety showed significant positive results.",
+      stress: "All studies on walking and stress found significant benefits.",
+      low_energy: "Even a few hours of walking per week reduces risk of depression and boosts energy.",
+      general_wellbeing: "Walking is the most accessible and one of the most effective movements for overall mental health.",
+    },
+    why: {
+      depression: "Walking triggers the release of endorphins and gets you moving through the world - literally changing your perspective.",
+      anxiety: "The rhythmic nature of walking has a natural calming effect on the nervous system, especially outdoors.",
+      stress: "Walking gives your mind space to process while your body releases physical tension.",
+      low_energy: "Walking is the gentlest way to break through low energy - no equipment, no pressure, just one foot in front of the other.",
+      general_wellbeing: "Walking outdoors combines movement with fresh air and nature - each adding its own mental health benefits.",
+    },
+    starters: {
+      sedentary: { short: "Go for a 15-minute walk at whatever pace feels comfortable. Around the block is enough.", medium: "Walk for 30 minutes at an easy pace. Pick a route you enjoy - a park, a neighborhood, wherever feels good.", long: "Take a 45-minute walk. Start easy and find a pace that feels brisk but comfortable." },
+      light: { short: "Go for a brisk 20-minute walk. Aim for a pace where you can talk but feel slightly out of breath.", medium: "Walk briskly for 30 minutes. Mix in a few hills or stairs if you can.", long: "Take a 45-minute brisk walk, ideally somewhere with varied terrain." },
+      moderate: { short: "Do a 20-minute power walk or add intervals - walk fast for 2 minutes, moderate for 1.", medium: "Walk briskly for 30 minutes with hills or incline. Keep your heart rate up.", long: "Go for a 45-minute hike or power walk on varied terrain." },
+    }
+  },
+  {
+    id: "cardio",
+    name: "Cardio & Aerobic Exercise",
+    preference: "energetic",
+    settings: ["home", "outdoor", "gym"],
+    scores: { depression: 10, anxiety: 8, stress: 7, low_energy: 8, general_wellbeing: 9 },
+    evidence: {
+      depression: "86% of 161 studies found cardio significantly reduces depression - with effects comparable to antidepressants.",
+      anxiety: "79% of 75 studies found cardio effectively reduces anxiety symptoms.",
+      stress: "Multiple meta-analyses support aerobic exercise for stress reduction.",
+      low_energy: "Cardio increases brain neurotransmitters including dopamine, serotonin, and norepinephrine - your body's natural energy boosters.",
+      general_wellbeing: "92% of 40 systematic reviews concluded that aerobic exercise significantly improves mental health.",
+    },
+    why: {
+      depression: "Getting your heart rate up increases serotonin, dopamine, and BDNF - the same pathways targeted by antidepressant medications.",
+      anxiety: "Sustained aerobic movement helps burn off excess adrenaline and cortisol that fuel anxious feelings.",
+      stress: "Cardio down-regulates your body's primary stress system (the HPA axis), reducing how much cortisol floods your system.",
+      low_energy: "Aerobic exercise floods your brain with feel-good neurotransmitters and increases energy over time.",
+      general_wellbeing: "Regular cardio literally rewires your brain for resilience - increasing neuroplasticity and cognitive function.",
+    },
+    starters: {
+      sedentary: { short: "Do 15 minutes of movement that raises your heart rate - march in place, dance to a song, climb stairs.", medium: "Get moving for 30 minutes - try a beginner cardio video, a bike ride, or a jog-walk combo.", long: "Do 45 minutes of mixed cardio - start easy, build to moderate effort, cool down gently." },
+      light: { short: "Do 20 minutes of cardio at moderate effort - jogging, cycling, or a cardio class.", medium: "Get 30 minutes of sustained moderate cardio - keep your heart rate up throughout.", long: "Do a 45-minute cardio session mixing different movements to keep it interesting." },
+      moderate: { short: "Do 20 minutes of vigorous cardio - running, cycling, rowing, or a HIIT-style workout.", medium: "Push for 30 minutes of moderate-to-vigorous cardio. Challenge yourself.", long: "Do a 45-minute cardio session with intervals of high and moderate effort." },
+    }
+  },
+  {
+    id: "strength",
+    name: "Strength & Resistance Training",
+    preference: "energetic",
+    settings: ["home", "gym"],
+    scores: { depression: 9, anxiety: 7, stress: 6, low_energy: 8, general_wellbeing: 7 },
+    evidence: {
+      depression: "The majority of 27 studies found strength training significantly improves depression symptoms.",
+      anxiety: "Studies support resistance training for reducing both general and state anxiety.",
+      stress: "Strength training helps regulate stress hormones and build physical resilience.",
+      low_energy: "Building strength increases energy, confidence, and your body's capacity for daily life.",
+      general_wellbeing: "Combining resistance training with aerobic exercise shows stronger mental health benefits than either alone.",
+    },
+    why: {
+      depression: "Strength training builds more than muscle - it builds self-efficacy. Seeing yourself get stronger translates to feeling stronger mentally.",
+      anxiety: "Progressive resistance training teaches your body to handle increasing challenges, which builds confidence against anxious feelings.",
+      stress: "The focused, repetitive nature of strength training provides a mental break while releasing physical tension.",
+      low_energy: "Getting physically stronger directly increases your energy capacity and confidence for daily life.",
+      general_wellbeing: "Strength training combined with cardio delivers the strongest mental health benefits of any exercise combination.",
+    },
+    starters: {
+      sedentary: { short: "Do 15 minutes of bodyweight exercises - wall push-ups, chair squats, standing lunges. 8-10 reps each, rest between sets.", medium: "Follow a 30-minute beginner bodyweight strength video. Focus on form, not speed.", long: "Do a 45-minute beginner strength routine hitting all major muscle groups. Rest as needed." },
+      light: { short: "Do a 20-minute bodyweight circuit - squats, push-ups, lunges, planks. 2 rounds.", medium: "Follow a 30-minute strength workout - bodyweight or light weights if you have them.", long: "Do a 45-minute full-body strength session with moderate effort." },
+      moderate: { short: "Do a 20-minute intense bodyweight circuit - 3 rounds, minimal rest.", medium: "Follow a 30-minute strength training session with challenging weights or progressions.", long: "Do a 45-minute strength workout pushing for progressive overload." },
+    }
+  },
+  {
+    id: "cycling",
+    name: "Cycling",
+    preference: "energetic",
+    settings: ["outdoor", "gym"],
+    scores: { depression: 10, anxiety: 10, stress: 7, low_energy: 7, general_wellbeing: 8 },
+    evidence: {
+      depression: "100% of cycling studies found significant positive impact on depression.",
+      anxiety: "93% of studies found cycling significantly improves anxiety symptoms.",
+      stress: "Studies show cycling with nature imagery significantly increases stress relief.",
+      low_energy: "Cycling is one of the top 3 forms of exercise linked to fewer poor mental health days per month.",
+      general_wellbeing: "All 19 studies on cycling reported positive mental health outcomes.",
+    },
+    why: {
+      depression: "Cycling gets your heart pumping and takes you somewhere new - the combination of cardio and changing scenery is powerful for lifting mood.",
+      anxiety: "The rhythmic pedaling and focused attention of cycling calms the mind while burning off nervous energy.",
+      stress: "Cycling outdoors combines exercise with fresh air and moving scenery - a natural stress reliever.",
+      low_energy: "Cycling lets you control the intensity - start easy and let the momentum carry you.",
+      general_wellbeing: "Cycling is consistently ranked in the top 3 exercises for reducing poor mental health days.",
+    },
+    starters: {
+      sedentary: { short: "Ride at an easy pace for 15 minutes - flat terrain, no pressure. A stationary bike works great too.", medium: "Go for a 30-minute easy bike ride. Pick a flat, pleasant route and enjoy it.", long: "Ride for 45 minutes at a comfortable pace. Take breaks if you need them." },
+      light: { short: "Ride for 20 minutes at a moderate pace - enough to feel your heart rate rise.", medium: "Go for a 30-minute ride with some effort. Mix flat stretches with gentle hills.", long: "Do a 45-minute ride at steady moderate effort." },
+      moderate: { short: "Do a 20-minute ride with intervals - push hard for 1 minute, easy for 2.", medium: "Ride for 30 minutes at moderate-to-hard effort. Include some hills.", long: "Do a 45-minute ride with sustained effort and interval bursts." },
+    }
+  },
+  {
+    id: "pilates",
+    name: "Pilates",
+    preference: "mindful",
+    settings: ["home", "gym"],
+    scores: { depression: 10, anxiety: 7, stress: 5, low_energy: 6, general_wellbeing: 7 },
+    evidence: {
+      depression: "92% of studies found Pilates significantly improves depression symptoms.",
+      anxiety: "Meta-analysis found large reductions in anxiety associated with Pilates practice.",
+      stress: "Pilates' focus on controlled breathing and core engagement helps manage stress.",
+      low_energy: "Pilates reduces fatigue and increases energy according to meta-analysis data.",
+      general_wellbeing: "Pilates improves both physical confidence and mental wellbeing through mind-body integration.",
+    },
+    why: {
+      depression: "Pilates rebuilds the connection between your mind and body - focused movement and breathing elevate mood while building physical confidence.",
+      anxiety: "The precise, controlled nature of Pilates gives your mind something constructive to focus on, pulling attention away from worry.",
+      stress: "Core-focused breathing and deliberate movement help you feel grounded and in control.",
+      low_energy: "Pilates gently activates your body without overwhelming it - reducing fatigue and building energy over time.",
+      general_wellbeing: "Pilates strengthens your core while calming your mind - a combination that makes daily life feel easier.",
+    },
+    starters: {
+      sedentary: { short: "Follow a 15-minute beginner mat Pilates video. All you need is a mat or soft surface.", medium: "Try a 30-minute beginner Pilates class online. Focus on breathing and gentle core engagement.", long: "Follow a 45-minute gentle Pilates session. Go at your own pace." },
+      light: { short: "Do 20 minutes of mat Pilates focusing on core and posture.", medium: "Follow a 30-minute Pilates workout with moderate challenge.", long: "Try a 45-minute Pilates class mixing core, flexibility, and strength moves." },
+      moderate: { short: "Do a 20-minute intermediate Pilates flow with challenging core work.", medium: "Follow a 30-minute Pilates session that pushes your strength and control.", long: "Do a 45-minute intermediate Pilates class with progressive difficulty." },
+    }
+  },
+  {
+    id: "dance",
+    name: "Dance & Movement",
+    preference: "mixed",
+    settings: ["home", "gym"],
+    scores: { depression: 7, anxiety: 5, stress: 5, low_energy: 7, general_wellbeing: 7 },
+    evidence: {
+      depression: "88% of studies found dance improves depression outcomes.",
+      anxiety: "Dance and movement therapy show promising results for anxiety reduction.",
+      stress: "Dance provides both physical and emotional release, helping manage stress.",
+      low_energy: "Dance movement therapy increased serotonin (the 'happiness hormone') in studies.",
+      general_wellbeing: "Dance combines physical movement with emotional expression and often social connection.",
+    },
+    why: {
+      depression: "Dance increases serotonin - your body's happiness hormone - while giving you a way to express emotions through movement.",
+      anxiety: "Moving to music gets you out of your head and into your body, interrupting anxious thought patterns.",
+      stress: "Dance is a physical and emotional release - there's a reason people say 'dance it out.'",
+      low_energy: "Music and movement together are a natural mood and energy booster.",
+      general_wellbeing: "Dance is exercise that doesn't feel like exercise - it's joyful movement that lifts your spirits.",
+    },
+    starters: {
+      sedentary: { short: "Put on your favorite upbeat song and just move for 15 minutes. No rules, no choreography needed.", medium: "Dance to a 30-minute playlist of songs you love. Or try a beginner dance workout video.", long: "Follow a 45-minute beginner dance fitness class online. Just keep moving and have fun." },
+      light: { short: "Do 20 minutes of dance - follow a tutorial or freestyle to your favorite music.", medium: "Try a 30-minute dance workout or class - Zumba, hip hop, whatever sounds fun.", long: "Do a 45-minute dance class that keeps you moving throughout." },
+      moderate: { short: "Do a 20-minute high-energy dance workout.", medium: "Try a 30-minute intermediate dance fitness class.", long: "Do a 45-minute dance session that challenges your coordination and stamina." },
+    }
+  },
+  {
+    id: "swimming",
+    name: "Swimming & Water Exercise",
+    preference: "mixed",
+    settings: ["gym"],
+    scores: { depression: 8, anxiety: 8, stress: 7, low_energy: 6, general_wellbeing: 7 },
+    evidence: {
+      depression: "9 out of 13 studies found swimming significantly improves depression symptoms.",
+      anxiety: "8 out of 13 studies showed aquatic exercise reduces anxiety.",
+      stress: "Low-intensity aquatic exercise may reduce oxidative stress indicators linked to worse mental health.",
+      low_energy: "Swimming offers a full-body workout that's gentle on joints while boosting mood.",
+      general_wellbeing: "One review suggested consistent swimming could even replace antidepressant medication for some people.",
+    },
+    why: {
+      depression: "Water has a naturally calming effect, and swimming provides rhythmic, meditative movement that lifts mood.",
+      anxiety: "The sensation of being in water is inherently soothing - combined with exercise, it's a powerful anxiety reducer.",
+      stress: "Swimming is low-impact and meditative. The water itself lowers oxidative stress markers in your body.",
+      low_energy: "Water supports your body while you move, making exercise feel easier than it is on land.",
+      general_wellbeing: "Swimming is a full-body workout that's gentle on your body but powerful for your mind.",
+    },
+    starters: {
+      sedentary: { short: "Swim or do water exercises for 15 minutes at an easy pace. Even water walking counts.", medium: "Spend 30 minutes in the pool - swim laps slowly or try a water aerobics class.", long: "Do 45 minutes of pool time - mix swimming with water exercises. Take breaks as needed." },
+      light: { short: "Swim laps for 20 minutes at a comfortable pace.", medium: "Do 30 minutes of swimming, mixing strokes to keep it interesting.", long: "Swim or do water exercises for 45 minutes at moderate effort." },
+      moderate: { short: "Swim laps for 20 minutes with some faster intervals.", medium: "Do 30 minutes of focused lap swimming at moderate-to-hard effort.", long: "Swim for 45 minutes mixing interval sprints with steady laps." },
+    }
+  },
+  {
+    id: "sports",
+    name: "Team Sports & Recreation",
+    preference: "energetic",
+    settings: ["outdoor", "gym"],
+    scores: { depression: 8, anxiety: 6, stress: 7, low_energy: 8, general_wellbeing: 9 },
+    evidence: {
+      depression: "83% of studies found sports significantly improve depression symptoms.",
+      anxiety: "Sports provide social support and confidence-building that help manage anxiety.",
+      stress: "Team sports are one of the top 3 exercises linked to 20%+ fewer poor mental health days per month.",
+      low_energy: "The social energy of sports naturally motivates movement when individual exercise feels too hard.",
+      general_wellbeing: "Team sports, cycling, and gym exercise are the top 3 forms of exercise for overall mental health.",
+    },
+    why: {
+      depression: "Sports combine exercise with social connection and fun - the trifecta for lifting mood. Endorphins plus community.",
+      anxiety: "Playing a sport focuses your attention on the game, pulling you out of anxious thoughts and into the present moment.",
+      stress: "Competitive play channels stress into something productive while the social element provides support.",
+      low_energy: "Other people's energy is contagious - the social aspect of sports can motivate you when solo exercise can't.",
+      general_wellbeing: "Sports deliver exercise, social connection, and purpose all at once - that's why they rank in the top 3 for mental health.",
+    },
+    starters: {
+      sedentary: { short: "Find a casual pickup game or recreational league - basketball, soccer, tennis. Start with just 15-20 minutes of play.", medium: "Join a recreational league or find a pickup game. Play for 30 minutes and take breaks when needed.", long: "Commit to one recreational sports session per week. Play for 45 minutes - the social energy will carry you." },
+      light: { short: "Play a sport you enjoy for 20 minutes - tennis, basketball, soccer, badminton.", medium: "Join a recreational game or hit the courts for 30 minutes.", long: "Play a full game or session for 45 minutes with friends or a recreational league." },
+      moderate: { short: "Play a competitive pickup game for 20 minutes at full effort.", medium: "Do 30 minutes of competitive play - push yourself.", long: "Play a full game or match for 45+ minutes." },
+    }
+  },
+  {
+    id: "running",
+    name: "Running & Jogging",
+    preference: "energetic",
+    settings: ["outdoor", "gym"],
+    scores: { depression: 7, anxiety: 10, stress: 5, low_energy: 6, general_wellbeing: 6 },
+    evidence: {
+      depression: "9 out of 10 studies found running positively impacts mental health.",
+      anxiety: "100% of studies on running and anxiety found significant improvement.",
+      stress: "Running shows promising results for stress reduction.",
+      low_energy: "Running triggers an endorphin rush - the 'runner's high' - that boosts energy and mood.",
+      general_wellbeing: "Running appears to reduce symptoms across multiple mental health conditions.",
+    },
+    why: {
+      depression: "Running triggers the release of endorphins and endocannabinoids - your body's natural mood elevators.",
+      anxiety: "Every single study on running and anxiety showed improvement. The rhythmic, forward motion is deeply calming.",
+      stress: "Running gives you time alone with your thoughts while your body burns off stress hormones.",
+      low_energy: "The 'runner's high' is real - even a short jog floods your brain with feel-good chemicals.",
+      general_wellbeing: "Running builds cardiovascular health, mental resilience, and endurance - physical and emotional.",
+    },
+    starters: {
+      sedentary: { short: "Alternate 1 minute of jogging with 2 minutes of walking for 15 minutes. No need to go fast.", medium: "Do a 30-minute jog-walk: jog for 2 minutes, walk for 2. Repeat. Finish with a walk to cool down.", long: "Try a Couch to 5K-style workout for 45 minutes - structured walk-jog intervals." },
+      light: { short: "Jog at an easy pace for 20 minutes. Walk when you need to, then jog again.", medium: "Run for 30 minutes at a conversational pace - slow enough to talk.", long: "Run for 45 minutes at an easy, sustainable pace." },
+      moderate: { short: "Run for 20 minutes at a moderate pace with a few faster bursts.", medium: "Run 30 minutes at a steady moderate effort.", long: "Run 45 minutes with tempo intervals - moderate for 5 minutes, faster for 2." },
+    }
+  },
+  {
+    id: "stretching",
+    name: "Stretching & Flexibility",
+    preference: "mindful",
+    settings: ["home"],
+    scores: { depression: 4, anxiety: 6, stress: 4, low_energy: 4, general_wellbeing: 5 },
+    evidence: {
+      depression: "Some studies show stretching with breathing exercises can improve depression symptoms.",
+      anxiety: "Stretching with breathing significantly decreased anxiety and cortisol levels in studies.",
+      stress: "Stretching routines that include breathing and body awareness show stress-reducing potential.",
+      low_energy: "Gentle stretching can be a low-barrier entry point to regular movement.",
+      general_wellbeing: "Stretching combined with breathing and posture awareness shows promise for overall wellbeing.",
+    },
+    why: {
+      depression: "Stretching with intentional breathing activates your sympathetic nervous system and can stimulate mood-regulating hormones.",
+      anxiety: "Stretching physically releases the tension your body holds when you're anxious, while breathing lowers cortisol.",
+      stress: "Your body stores stress as physical tension. Stretching directly releases it while calming your breathing.",
+      low_energy: "Stretching is the gentlest possible entry point - minimal effort, maximum accessibility, and it still helps.",
+      general_wellbeing: "A simple stretching routine with deep breathing is an easy daily practice that supports your mental health.",
+    },
+    starters: {
+      sedentary: { short: "Do a 15-minute gentle stretching routine at home. Focus on deep breathing with each stretch.", medium: "Follow a 30-minute stretching and breathing video. Hold each stretch for 20-30 seconds.", long: "Do a 45-minute stretch session covering your whole body. Breathe deeply throughout." },
+      light: { short: "Stretch for 20 minutes focusing on areas that feel tight. Breathe into each stretch.", medium: "Follow a 30-minute flexibility routine mixing stretching with gentle movement.", long: "Do a 45-minute deep stretch and mobility session." },
+      moderate: { short: "Do 20 minutes of dynamic and static stretching.", medium: "Follow a 30-minute flexibility and mobility routine.", long: "Do a 45-minute deep flexibility session with advanced stretches." },
+    }
+  },
+];
+
+// =====================================================
+// STATE
+// =====================================================
+
+let currentQuestion = 0;
+let answers = {};
+
+// =====================================================
+// FUNCTIONS
+// =====================================================
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz() {
+  currentQuestion = 0;
+  answers = {};
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function retakeQuiz() {
+  window.scrollTo(0, 0);
+  startQuiz();
+}
+
+function renderQuestion() {
+  const q = questions[currentQuestion];
+  const questionEl = document.getElementById('question-text');
+  questionEl.textContent = q.text;
+  questionEl.classList.remove('fade-in');
+  void questionEl.offsetWidth;
+  questionEl.classList.add('fade-in');
+
+  for (let i = 0; i < 5; i++) {
+    const dot = document.getElementById('dot-' + i);
+    if (i < currentQuestion) {
+      dot.className = 'progress-dot w-2.5 h-2.5 rounded-full bg-cyan';
+    } else if (i === currentQuestion) {
+      dot.className = 'progress-dot w-3 h-3 rounded-full bg-cyan shadow-lg shadow-cyan/50';
+    } else {
+      dot.className = 'progress-dot w-2.5 h-2.5 rounded-full bg-slate-600';
+    }
+  }
+
+  document.getElementById('back-btn').style.display = currentQuestion > 0 ? 'flex' : 'none';
+
+  const container = document.getElementById('options-container');
+  container.replaceChildren();
+
+  q.options.forEach(function(opt, idx) {
+    const btn = document.createElement('button');
+    btn.className = 'option-card bg-navy-light/30 border border-slate-700/50 rounded-xl px-6 py-4 text-left text-white text-base md:text-lg hover:bg-navy-light/50 fade-in';
+    btn.style.animationDelay = (idx * 0.06) + 's';
+    btn.textContent = opt.label;
+    btn.addEventListener('click', function() { selectAnswer(opt.value); });
+    container.appendChild(btn);
+  });
+}
+
+function selectAnswer(value) {
+  answers[currentQuestion] = value;
+  if (currentQuestion < questions.length - 1) {
+    currentQuestion++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function goBack() {
+  if (currentQuestion > 0) {
+    currentQuestion--;
+    renderQuestion();
+  }
+}
+
+function scoreExercises() {
+  const condition = answers[0];
+  const preference = answers[2];
+  const setting = answers[3];
+  const activityLevel = answers[1];
+
+  const scored = exercises.map(function(ex) {
+    let score = ex.scores[condition] || 3;
+
+    if (ex.preference === preference) {
+      score *= 1.5;
+    } else if (preference === 'mixed') {
+      score *= 1.2;
+    }
+
+    if (setting !== 'any') {
+      if (ex.settings.indexOf(setting) !== -1) {
+        score += 2;
+      } else {
+        score -= 1;
+      }
+    }
+
+    if (activityLevel === 'sedentary' && ex.id === 'running') {
+      score -= 2;
+    }
+
+    return { exercise: ex, finalScore: score };
+  });
+
+  scored.sort(function(a, b) { return b.finalScore - a.finalScore; });
+  return scored.slice(0, 3);
+}
+
+function showResults() {
+  showScreen('results');
+  window.scrollTo(0, 0);
+
+  const top3 = scoreExercises();
+  const condition = answers[0];
+  const activityLevel = answers[1];
+  const duration = answers[4];
+  const container = document.getElementById('results-container');
+  container.replaceChildren();
+
+  var rankLabels = ['Best Match', 'Great Option', 'Also Consider'];
+
+  top3.forEach(function(item, idx) {
+    var ex = item.exercise;
+    var isTop = idx === 0;
+    var starter = (ex.starters[activityLevel] && ex.starters[activityLevel][duration]) || (ex.starters['sedentary'] && ex.starters['sedentary']['medium']) || '';
+    var evidence = ex.evidence[condition] || ex.evidence['general_wellbeing'];
+    var why = ex.why[condition] || ex.why['general_wellbeing'];
+
+    var card = document.createElement('div');
+    card.className = 'result-card rounded-2xl p-6 md:p-8 ' + (isTop ? 'bg-gradient-to-br from-navy-light/80 to-blue-mid/30 border border-cyan/30 glow-border' : 'bg-navy-light/40 border border-slate-700/40');
+
+    // Build card content with safe DOM methods
+    var rankSpan = document.createElement('span');
+    rankSpan.className = 'text-xs font-semibold tracking-wider uppercase ' + (isTop ? 'text-cyan' : 'text-slate-400');
+    rankSpan.textContent = rankLabels[idx];
+
+    var rankDiv = document.createElement('div');
+    rankDiv.className = 'flex items-center gap-3 mb-4';
+    rankDiv.appendChild(rankSpan);
+
+    var title = document.createElement('h3');
+    title.className = 'text-xl md:text-2xl font-bold mb-3 ' + (isTop ? 'text-white' : 'text-slate-100');
+    title.textContent = ex.name;
+
+    var whyP = document.createElement('p');
+    whyP.className = 'text-slate-300 text-sm md:text-base leading-relaxed mb-4';
+    whyP.textContent = why;
+
+    var starterLabel = document.createElement('p');
+    starterLabel.className = 'text-xs font-semibold tracking-wider uppercase text-cyan/80 mb-2';
+    starterLabel.textContent = 'Your starter routine';
+
+    var starterText = document.createElement('p');
+    starterText.className = 'text-white text-sm md:text-base leading-relaxed';
+    starterText.textContent = starter;
+
+    var starterBox = document.createElement('div');
+    starterBox.className = 'bg-navy-dark/40 rounded-xl p-4 mb-4';
+    starterBox.appendChild(starterLabel);
+    starterBox.appendChild(starterText);
+
+    var checkSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    checkSvg.setAttribute('class', 'w-4 h-4 text-cyan mt-0.5 flex-shrink-0');
+    checkSvg.setAttribute('fill', 'currentColor');
+    checkSvg.setAttribute('viewBox', '0 0 20 20');
+    var checkPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    checkPath.setAttribute('fill-rule', 'evenodd');
+    checkPath.setAttribute('d', 'M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z');
+    checkPath.setAttribute('clip-rule', 'evenodd');
+    checkSvg.appendChild(checkPath);
+
+    var evidenceP = document.createElement('p');
+    evidenceP.className = 'text-slate-400 text-xs md:text-sm';
+    evidenceP.textContent = evidence;
+
+    var evidenceRow = document.createElement('div');
+    evidenceRow.className = 'flex items-start gap-2';
+    evidenceRow.appendChild(checkSvg);
+    evidenceRow.appendChild(evidenceP);
+
+    card.appendChild(rankDiv);
+    card.appendChild(title);
+    card.appendChild(whyP);
+    card.appendChild(starterBox);
+    card.appendChild(evidenceRow);
+
+    container.appendChild(card);
+  });
+}
+</script>
+
+</body>
+</html>
