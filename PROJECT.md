@@ -53,8 +53,33 @@ Citation required: "John W. Brick Mental Health Foundation (2020) Move Your Ment
 - WEBSITE-REBUILD.md - research notes for potential full JWB website rebuild
 - index.html - the quiz (live, working)
 
+## Deploying Live
+
+The quiz is a single static HTML file - no build step, no backend. Two easy options to get it live on a public URL:
+
+### Option 1: GitHub Pages (free, easiest)
+1. Go to the repo Settings > Pages
+2. Under "Source", select "Deploy from a branch"
+3. Pick `main` branch, `/ (root)` folder
+4. Click Save
+5. The quiz will be live at `https://<username>.github.io/leah-idea/` within a few minutes
+
+### Option 2: Vercel (free, more features)
+1. Go to vercel.com and sign in with GitHub
+2. Click "Add New Project" and import this repo
+3. No build settings needed - it detects the static HTML automatically
+4. Click Deploy
+5. Get a live URL like `leah-idea.vercel.app` (can connect a custom domain later)
+
+**Vercel advantages:** Custom domains, automatic HTTPS, instant deploys on every push, analytics. Better for production.
+**GitHub Pages advantages:** Zero setup, no extra account needed, good enough for sharing and review.
+
+### Option 3: Embed in existing WordPress site
+If JWB wants the quiz on their current site without a full rebuild, the index.html content can be embedded into a WordPress custom HTML block or page template. This keeps everything on johnwbrickfoundation.org.
+
 ## Backlog
 
+- [ ] **Deploy quiz live** - Pick a hosting option above and deploy so JWB team can review
 - [ ] **Website rebuild exploration** - JWB is considering a full website redesign (currently WordPress). Need to understand Leah's actual pain point with the current site before scoping. See `WEBSITE-REBUILD.md` for research notes and open questions.
 - [ ] Get feedback from Leah on quiz v1
-- [ ] Decide hosting for quiz (embed in existing WordPress? standalone subdomain? Vercel?)
+- [ ] Decide final hosting for quiz (embed in existing WordPress? standalone subdomain? Vercel?)
